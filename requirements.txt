@@ -1,5 +1,7 @@
 streamlit
-yfinance
 pandas
-requests
-google-generativeai
+folium
+streamlit-folium
+plotly
+matplotlib
+reportlab
