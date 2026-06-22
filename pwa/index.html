@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ShockWatch</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#14171F" />
+
+  <!-- iOS: Safari no lee manifest.json, necesita estos meta tags aparte -->
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ShockWatch" />
+
+  <link rel="icon" href="icon-192.png" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #14171F;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    #carga {
+      position: fixed;
+      inset: 0;
+      background: #14171F;
+      color: #FAF8F4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      letter-spacing: 1px;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <div id="carga">Cargando ShockWatch…</div>
+
+  <!-- OJO: cambia la URL de abajo si tu app de Streamlit cambia de dirección.
+       ?embed=true por sí solo ya esconde el toolbar, el padding y la línea de color de Streamlit.
+       allow="microphone" es necesario para que funcione la búsqueda por voz dentro del iframe. -->
+  <iframe
+    src="https://showckwatch-m57ifcrvlry3vybnvqh3ie.streamlit.app/?embed=true"
+    allow="microphone"
+    onload="document.getElementById('carga').style.display='none';"
+  ></iframe>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js").catch(function (err) {
+        console.warn("No se pudo registrar el service worker:", err);
+      });
+    }
+  </script>
+</body>
+</html>
