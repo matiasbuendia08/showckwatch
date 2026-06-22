@@ -1,17 +1,11 @@
-import os
-# Workaround para Windows/Anaconda: numpy (vía MKL) y ctranslate2 (usado por faster-whisper)
-# a veces traen cada uno su propia copia de libiomp5md.dll, lo que choca y puede trabar
-# el programa (OMP: Error #15). Esto debe ir ANTES de importar streamlit/pandas/faster_whisper.
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
 import streamlit as st
 import pandas as pd
+import os
 import math
 import hashlib
 import secrets
 import tempfile
 import unicodedata
-import difflib
 from datetime import datetime
 import folium
 from streamlit_folium import st_folium
@@ -173,50 +167,10 @@ st.markdown("""
         --steel: #5B6472;
     }
 
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-
-    /* Forzar nuestro fondo y look sin importar si el visitante tiene activado el modo
-       oscuro de Streamlit (Settings -> Theme) — el diseño no debe depender de eso. */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        background-color: var(--canvas) !important;
-    }
-
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: var(--ink); }
     .main > div { padding-top: 1rem; }
 
-    h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--ink) !important; }
-
-    /* Acotado a los contenedores reales de texto de Streamlit (markdown/caption/label),
-       NUNCA a la etiqueta <p> genérica — esa se cuela dentro de botones y otros widgets
-       que tienen su propio fondo, y ahí es donde se generó el bug de "negro sobre negro". */
-    [data-testid="stMarkdownContainer"], [data-testid="stMarkdownContainer"] p,
-    [data-testid="stCaptionContainer"], [data-testid="stWidgetLabel"] {
-        color: var(--ink) !important;
-    }
-
-    /* Cuadros de selectbox / multiselect / inputs: forzar SIEMPRE fondo claro + texto
-       oscuro JUNTOS. El bug de "letra negra sobre fondo negro" pasa cuando se fuerza
-       solo el texto sin tocar el fondo (o viceversa) — hay que mover ambos a la vez. */
-    [data-baseweb="select"] > div,
-    [data-baseweb="base-input"],
-    .stTextInput input, .stNumberInput input, .stTextArea textarea,
-    [data-testid="stDateInput"] input {
-        background-color: #FFFFFF !important;
-        color: var(--ink) !important;
-        border-color: #E8E4DC !important;
-    }
-    [data-baseweb="select"] span, [data-baseweb="select"] div {
-        color: var(--ink) !important;
-    }
-    /* Lista desplegable del selectbox al abrirla (incluye listas largas con
-       virtualización, donde Streamlit no usa <li> sino <div> por dentro —
-       por eso se fuerza TODO lo de adentro, sin depender de la etiqueta exacta). */
-    [data-baseweb="popover"] {
-        background-color: #FFFFFF !important;
-    }
-    [data-baseweb="popover"] * {
-        background-color: #FFFFFF !important;
-        color: var(--ink) !important;
-    }
+    h1, h2, h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--ink); }
 
     /* Métricas como placas de tablero */
     [data-testid="stMetric"] {
@@ -229,50 +183,28 @@ st.markdown("""
         font-family: 'Roboto Mono', monospace;
         font-weight: 700;
         font-size: 1.4rem;
-        color: var(--ink) !important;
     }
-    [data-testid="stMetricLabel"] { font-weight: 600; color: var(--steel) !important; }
+    [data-testid="stMetricLabel"] { font-weight: 600; color: var(--steel); }
 
-    /* Botones: fondo Y texto SIEMPRE juntos, como pareja, para los dos tipos (normal y primario) */
-    .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {
+    /* Botones */
+    .stButton > button {
         border-radius: 8px;
         font-weight: 600;
         border: 1px solid #E8E4DC;
-        background-color: #FFFFFF !important;
-        color: var(--ink) !important;
     }
-    .stButton > button p, .stDownloadButton > button p, .stFormSubmitButton > button p,
-    .stButton > button span, .stDownloadButton > button span, .stFormSubmitButton > button span {
-        color: var(--ink) !important;
-    }
-    .stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] {
-        background-color: var(--signal-amber) !important;
+    .stButton > button[kind="primary"] {
+        background-color: var(--signal-amber);
+        color: var(--ink);
         border: none;
     }
-    .stButton > button[kind="primary"] p, .stFormSubmitButton > button[kind="primary"] p,
-    .stButton > button[kind="primary"] span, .stFormSubmitButton > button[kind="primary"] span {
-        color: var(--ink) !important;
-    }
 
-    /* Sidebar: forzar texto e inputs legibles sin importar el tema del visitante */
-    [data-testid="stSidebar"] {
-        background-color: #F1ECE2 !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: var(--ink) !important;
-    }
-    [data-testid="stSidebar"] input, [data-testid="stSidebar"] textarea {
-        background-color: #FFFFFF !important;
-        color: var(--ink) !important;
-    }
+    /* Sidebar */
+    [data-testid="stSidebar"] { background-color: #F1ECE2; }
 
     /* Expanders y alertas con esquinas consistentes */
     [data-testid="stExpander"], [data-testid="stAlert"] {
         border-radius: 10px;
         border: 1px solid #E8E4DC;
-    }
-    [data-testid="stExpander"] summary, [data-testid="stExpander"] p {
-        color: var(--ink) !important;
     }
 
     .precio-mono { font-family: 'Roboto Mono', monospace; font-weight: 700; }
@@ -693,63 +625,16 @@ def normalizar_texto(s):
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 
 
-def buscar_distrito_en_texto(texto, distritos_disponibles, umbral=0.78):
+def buscar_distrito_en_texto(texto, distritos_disponibles):
     """Compara el texto transcrito contra la lista real de distritos (vocabulario cerrado,
-    no intenta entender lenguaje libre). Whisper comete dos tipos de error típicos con
-    nombres propios: separa palabras compuestas ("mira flores") o las deletrea mal
-    fométicamente ("patcha comac" por "Pachacamac") — por eso el matching tiene 3 niveles,
-    de más a menos confiable, y se detiene en el primero que encuentre algo:
-
-    1) Coincidencia EXACTA completa (sin tildes/espacios) — resuelve el caso "mira flores"
-       sin confundir "Miraflores" con "San Juan de Miraflores".
-    2) Contención parcial, priorizando el nombre más largo/específico — resuelve que la
-       gente diga el nombre corto y coloquial ("Surco" en vez de "Santiago de Surco").
-    3) Similitud aproximada (difflib, de la librería estándar, sin dependencias nuevas)
-       — resuelve errores fonéticos como "patcha comac".
-    """
+    no intenta entender lenguaje libre) — esto es lo que hace robusto el matching."""
     if not texto:
         return None
     texto_norm = normalizar_texto(texto)
-    texto_sin_espacios = texto_norm.replace(" ", "")
-    if len(texto_sin_espacios) < 3:
-        return None
-
-    # Nivel 1: coincidencia exacta completa
     for distrito in distritos_disponibles:
-        if normalizar_texto(distrito).replace(" ", "") == texto_sin_espacios:
+        if normalizar_texto(distrito) in texto_norm:
             return distrito
-
-    # Nivel 2: contención parcial (nombre corto/coloquial, o frases de relleno alrededor)
-    candidatos = []
-    for distrito in distritos_disponibles:
-        distrito_sin_esp = normalizar_texto(distrito).replace(" ", "")
-        if distrito_sin_esp in texto_sin_espacios or (
-            len(texto_sin_espacios) >= 4 and texto_sin_espacios in distrito_sin_esp
-        ):
-            candidatos.append(distrito)
-    if candidatos:
-        return max(candidatos, key=len)
-
-    # Nivel 3: similitud aproximada, tolera errores fonéticos
-    palabras = texto_norm.split()
-    candidatos_texto = list(palabras)
-    candidatos_texto += [" ".join(palabras[i:i + 2]) for i in range(len(palabras) - 1)]
-    candidatos_texto += [" ".join(palabras[i:i + 3]) for i in range(len(palabras) - 2)]
-    candidatos_texto += [texto_sin_espacios, texto_norm]
-
-    mejor_distrito, mejor_similitud = None, 0
-    for distrito in distritos_disponibles:
-        distrito_norm = normalizar_texto(distrito)
-        distrito_sin_esp = distrito_norm.replace(" ", "")
-        for candidato in candidatos_texto:
-            similitud = max(
-                difflib.SequenceMatcher(None, distrito_norm, candidato).ratio(),
-                difflib.SequenceMatcher(None, distrito_sin_esp, candidato.replace(" ", "")).ratio(),
-            )
-            if similitud > mejor_similitud:
-                mejor_similitud = similitud
-                mejor_distrito = distrito
-    return mejor_distrito if mejor_similitud >= umbral else None
+    return None
 
 
 DISTRITOS_CALLAO = {"CALLAO", "BELLAVISTA", "CARMEN DE LA LEGUA REYNOSO", "LA PERLA", "LA PUNTA", "VENTANILLA", "MI PERU"}
@@ -1271,37 +1156,17 @@ else:
             st_folium(m, width=None, height=520, returned_objects=[])
 
         with col_list:
-            st.subheader("🎯 Elige tu grifo — cerca y barato primero")
-            st.caption("Ranking combinado: 50% precio, 50% cercanía a tu zona (simulada al centro de tu búsqueda; en producción usaría tu GPS real).")
-
-            df_ranking = df_f.copy()
-            df_ranking["distancia_km"] = df_ranking.apply(
-                lambda r: haversine_km(centro_lat, centro_lon, r["lat"], r["lon"]), axis=1
-            )
-            p_min_r, p_max_r = df_ranking["precio"].min(), df_ranking["precio"].max()
-            d_min_r, d_max_r = df_ranking["distancia_km"].min(), df_ranking["distancia_km"].max()
-
-            def _score_combinado(row):
-                precio_norm = (row["precio"] - p_min_r) / (p_max_r - p_min_r) if p_max_r > p_min_r else 0
-                dist_norm = (row["distancia_km"] - d_min_r) / (d_max_r - d_min_r) if d_max_r > d_min_r else 0
-                return 0.5 * precio_norm + 0.5 * dist_norm
-
-            df_ranking["score"] = df_ranking.apply(_score_combinado, axis=1)
-            df_ranking = df_ranking.sort_values("score").head(10)
-
-            if "grifo_seleccionado" not in st.session_state:
-                st.session_state.grifo_seleccionado = None
-
-            for idx, (_, row) in enumerate(df_ranking.iterrows()):
+            st.subheader("🏆 Los más baratos")
+            top = df_f.sort_values("precio").head(8)
+            for idx, (_, row) in enumerate(top.iterrows()):
                 medalla = ["🥇", "🥈", "🥉"][idx] if idx < 3 else f"{idx + 1}."
-                clave = row["nombre"] + " — " + row["direccion"]
                 st.markdown(
                     f"""<div style="background:#fff; border:1px solid #E8E4DC; border-radius:10px;
-                                padding:10px 14px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                                padding:10px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <span style="font-size:0.8em; color:#5B6472;">{medalla}</span><br>
-                            <span style="font-weight:600; color:#14171F;">{row['nombre']}</span><br>
-                            <span style="font-size:0.75em; color:#5B6472;">{row['distrito']} · {row['marca']} · {row['distancia_km']*1000:.0f} m</span><br>
+                            <span style="font-weight:600;">{row['nombre']}</span><br>
+                            <span style="font-size:0.75em; color:#5B6472;">{row['distrito']} · {row['marca']}</span><br>
                             <span style="font-size:0.72em; color:#9B9486;">{row['tendencia']}</span>
                         </div>
                         <div style="background:#14171F; border-radius:6px; padding:6px 10px;">
@@ -1310,35 +1175,26 @@ else:
                     </div>""",
                     unsafe_allow_html=True,
                 )
-                if st.button("Ver detalle →", key=f"ver_detalle_card_{idx}", use_container_width=True):
-                    st.session_state.grifo_seleccionado = clave
-                    st.rerun()
-                st.write("")
 
         st.divider()
-        st.subheader("🔍 O busca un grifo específico")
+        st.subheader("📍 ¿Cuál está más cerca?")
+        st.caption("Simulamos tu ubicación en el centro de la zona seleccionada (en producción usaría tu GPS real).")
+        if st.button("Usar mi ubicación"):
+            df_f["distancia_km"] = df_f.apply(lambda r: haversine_km(centro_lat, centro_lon, r["lat"], r["lon"]), axis=1)
+            for _, row in df_f.sort_values("distancia_km").head(5).iterrows():
+                st.markdown(f"**{row['distancia_km']*1000:.0f} m** — {row['nombre']} ({row['distrito']}) — S/ {row['precio']:.2f}")
+
+        st.divider()
+        st.subheader("🔍 Selecciona un grifo")
         opciones = ["— Elige un grifo —"] + (df_f["nombre"] + " — " + df_f["direccion"]).tolist()
-        indice_default = 0
-        if st.session_state.get("grifo_seleccionado") in opciones:
-            indice_default = opciones.index(st.session_state.grifo_seleccionado)
-        grifo_sel = st.selectbox("Grifo", opciones, index=indice_default, label_visibility="collapsed")
+        grifo_sel = st.selectbox("Grifo", opciones, label_visibility="collapsed")
 
         if grifo_sel != "— Elige un grifo —":
-            st.session_state.grifo_seleccionado = grifo_sel
             fila = df_f[(df_f["nombre"] + " — " + df_f["direccion"]) == grifo_sel].iloc[0]
             st.markdown(f"### {fila['nombre']}")
             st.markdown(f"{fila['direccion']} · {fila['distrito']} · {fila['marca']}")
             st.markdown(f"**Precio actual: S/ {fila['precio']:.2f}**")
             st.markdown(f"*{fila['tendencia']}*")
-
-            reportes_calif = load_reportes()
-            reportes_de_este_grifo = reportes_calif[reportes_calif["estacion"] == grifo_sel]
-            if len(reportes_de_este_grifo):
-                calif_prom = reportes_de_este_grifo["calificacion"].mean()
-                n_rep = len(reportes_de_este_grifo)
-                st.markdown(f"⭐ **{calif_prom:.1f}/5** ({n_rep} reporte{'s' if n_rep != 1 else ''} de la comunidad)")
-            else:
-                st.caption("⭐ Aún sin calificaciones de la comunidad.")
 
             dias_antig_b2c = antiguedad_dato_oficial(historico_b2c, fila["ruc"], fila["direccion"], producto)
             etiqueta_antig_b2c, color_antig_b2c = etiqueta_antiguedad(dias_antig_b2c)
@@ -1351,7 +1207,7 @@ else:
                 st.success(f"✅ Precio verificado por la comunidad ({n_coinciden} reportes recientes de usuarios distintos coinciden)")
 
             maps_url = f"https://www.google.com/maps/dir/?api=1&destination={fila['lat']},{fila['lon']}"
-            st.markdown(f'<a href="{maps_url}" target="_blank" style="color:#1B8A5A; font-weight:600;">📍 Cómo llegar</a>', unsafe_allow_html=True)
+            st.markdown(f'<a href="{maps_url}" target="_blank">📍 Cómo llegar</a>', unsafe_allow_html=True)
 
             st.write("")
             col_rep, col_wait = st.columns(2)
