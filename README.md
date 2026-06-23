@@ -14,15 +14,15 @@ combustible y **controlar** su gasto — no solo a encontrar el grifo más barat
 ## Founder
 
 **Matias Alonso Buendia Ugarriza** — estudiante de Economía en la Universidad del Pacífico (top 8%
-de su clase, 2025) y practicante de estudios económicos en el Instituto Peruano de Economía (IPE)
-desde enero de 2025, donde trabaja en análisis de competitividad regional, nowcasting del PBI y
-reportes de coyuntura publicados en El Comercio, Gestión y RPP.
+de su clase, 2025) y practicante de estudios económicos en el Instituto Peruano de Economía (IPE) enfocado en temas de política pública, 
+donde trabaja en análisis de competitividad regional, nowcasting del PBI y
+reportes de coyuntura publicados en El Comercio, Gestión y RPP para diversos temas.
 
 **Founder–market fit:** en el IPE participó directamente en el análisis del shock energético de
 Camisea y su impacto en los precios de combustibles a nivel nacional — el mismo fenómeno que le da
-nombre a "ShockWatch". Ese análisis (publicado en El Comercio) encontró que el precio promedio de
-los combustibles llegó a subir hasta 27% frente al promedio de enero-febrero, en parte por la
-interrupción del gasoducto de Camisea, que produce el 96% del gas natural del país. No se
+nombre a "ShockWatch". Ese análisis encontró que el precio promedio de
+los combustibles llegó a subir hasta 27% frente al promedio de enero-febrero, pero con una gran dispersión entre regiones, en parte por la
+interrupción del gasoducto de Camisea. No se
 "interesó" en el problema desde afuera: lo analizó profesionalmente antes de decidir construirle
 una solución al usuario final.
 
@@ -47,21 +47,10 @@ Jorge gestiona presupuestos completos, no estaciones individuales.
 Milagros) y empresas/flotas que gestionan presupuesto de combustible (Jorge) — **no** conductores
 casuales ocasionales (Rosa), que priorizan comodidad y cercanía y no pagarían por esto.
 
-**Qué tan doloroso es — el verdadero problema:** no es el céntimo por galón, es la falta de
-información oportuna.
-> "Lo que más molesta no es el precio en sí, sino no saber antes." — Carlos
->
-> "Muchas veces reaccionamos después de que el precio ya subió." — Jorge
-
-No piden mapas más bonitos. Piden enterarse antes.
-
 **Cómo lo resuelven hoy sin esto:** Excel manual, WhatsApp entre colegas, o Facilito. Milagros
 probó Facilito y no dijo "no tiene información" — dijo "no me acostumbré" y "no era práctico para
 la ruta que estaba haciendo." El problema no es construir otro mapa que el usuario tenga que abrir
 cada día: es llevar la información cuando se necesita (WhatsApp, Telegram, alertas).
-
-**Evidencia:** 5 entrevistas a conductores y empresas reales (Carlos, Rosa, Jorge, Milagros,
-Wilmer) — resumen completo en [`docs/research/entrevistas_resumen.md`](docs/research/entrevistas_resumen.md).
 
 ## Qué hace ShockWatch
 
