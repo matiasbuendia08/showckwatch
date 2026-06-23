@@ -1,8 +1,7 @@
 # ⛽ ShockWatch
 
 Ayudamos a flotas y conductores profesionales a **anticipar** las subidas de precio de
-combustible y **controlar** su gasto — no solo a encontrar el grifo más barato. (Validado con
-5 entrevistas: ver [`docs/research/entrevistas_resumen.md`](docs/research/entrevistas_resumen.md))
+combustible y **controlar** su gasto — no solo a encontrar el grifo más barato.
 
 **Demo en vivo:** [matiasbuendia08.github.io/showckwatch/pwa](https://matiasbuendia08.github.io/showckwatch/pwa/)
 (instalable como app · si no carga, usa la URL directa: https://showckwatch-m57ifcrvlry3vybnvqh3ie.streamlit.app/)
